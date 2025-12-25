@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "beautifulsoup4>=4.12.0",
+    "bs4>=0.0.2",
     "markdownify>=0.11.0",
     "pyyaml>=6.0",
 ]
@@ -25,4 +26,9 @@ package-dir = {"" = "."}
 site2skill = ["templates/*"]
 
 [tool.uv]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
 # No special uv settings needed yet
