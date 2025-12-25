@@ -160,10 +160,10 @@ def test_directory_structure_preserved():
         
         if all_passed:
             print("\n🎉 All tests PASSED!")
-            return True
         else:
             print("\n❌ Some tests FAILED!")
-            return False
+            
+        assert all_passed, "Filename conversion tests failed"
             
     finally:
         # Cleanup
@@ -172,5 +172,5 @@ def test_directory_structure_preserved():
 
 
 if __name__ == "__main__":
-    success = test_directory_structure_preserved()
-    sys.exit(0 if success else 1)
+    test_directory_structure_preserved()
+

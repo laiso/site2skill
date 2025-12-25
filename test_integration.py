@@ -174,7 +174,8 @@ def verify_results(skill_dir):
     return all_passed
 
 
-def main():
+
+def test_integration_pipeline():
     """Run the end-to-end integration test."""
     print("=== End-to-End Integration Test ===")
     
@@ -201,22 +202,15 @@ def main():
         print("\n4. Verifying results...")
         success = verify_results(skill_dir)
         
-        if success:
-            print("\n🎉 All integration tests PASSED!")
-            print("\nThe fix successfully preserves directory structure throughout the entire pipeline:")
-            print("  ✓ Multiple index.html files are kept separate")
-            print("  ✓ Directory structure is preserved in markdown conversion")
-            print("  ✓ Directory structure is preserved in final skill structure")
-            return 0
-        else:
-            print("\n❌ Some integration tests FAILED!")
-            return 1
+        assert success, "Integration test failed: verification returned False"
+        
+        print("\n🎉 All integration tests PASSED!")
     
     finally:
         # Cleanup
         shutil.rmtree(temp_base)
         print(f"\nCleaned up test directory: {temp_base}")
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    test_integration_pipeline()
+
