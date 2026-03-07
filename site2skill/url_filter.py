@@ -5,7 +5,7 @@ Restricts crawl boundaries based on the starting URL and filters out
 URLs with localization-only query parameters to prevent over-crawling
 of duplicate content in different languages.
 """
-from urllib.parse import urlparse, parse_qs, urlencode
+from urllib.parse import urlparse, parse_qs
 
 DEFAULT_EXCLUDED_QUERY_KEYS = frozenset({"hl", "lang", "locale"})
 
@@ -24,7 +24,7 @@ def is_url_allowed(
        the starting URL and its path must be equal to or a descendant of the
        starting URL's path.
     2. **Query-key filtering** – if *every* query parameter of the candidate
-       URL is in the exclusion list (e.g. localisation parameters such as
+       URL is in the exclusion list (e.g. localization parameters such as
        ``hl``, ``lang``, ``locale``), the URL is rejected because it is
        likely a duplicate of the same page in a different language.  URLs
        that carry at least one non-excluded query key are allowed.
@@ -33,7 +33,7 @@ def is_url_allowed(
         start_url: The URL that was originally given to the crawler.
         candidate_url: The URL being evaluated for crawling.
         excluded_query_keys: Query-parameter keys to treat as
-            localisation-only.  Defaults to
+            localization-only.  Defaults to
             :data:`DEFAULT_EXCLUDED_QUERY_KEYS`.
 
     Returns:
