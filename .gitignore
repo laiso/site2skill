@@ -28,3 +28,6 @@ wheels/
 venv/
 .doc/
 .codex/skills/
+
+# Pytest
+.pytest_cache/
