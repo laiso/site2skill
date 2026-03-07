@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "site2skill"
-version = "0.1.0"
+version = "0.1.1"
 description = "Turn any website into a Claude Skill"
 readme = "README.md"
 license = { text = "MIT" }
@@ -37,6 +37,7 @@ packages = ["site2skill"]
 include = [
     "site2skill",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
 ]
 
