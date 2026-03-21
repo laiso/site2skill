@@ -78,6 +78,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let args = Args::parse();
 
+    // Validate skill_name to prevent path traversal
+    if args.skill_name.contains("..") || args.skill_name.contains('/') || args.skill_name.contains('\\') || args.skill_name.starts_with('-') {
+        error!("Invalid skill name: {:?}. Must not contain path separators or '..'", args.skill_name);
+        std::process::exit(1);
+    }
+
     // Determine output base directory
     let output_base = args.output.unwrap_or_else(|| {
         PathBuf::from(args.target.default_output_dir())
@@ -196,12 +202,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let validation_result = validate_skill(&skill_dir)?;
     if !validation_result.is_valid {
         error!("Validation failed. Please check errors.");
-        for err in validation_result.errors {
+        for err in &validation_result.errors {
             error!("  - {}", err);
         }
     }
-    for warning in validation_result.warnings {
+    for warning in &validation_result.warnings {
         warn!("  - {}", warning);
+    }
+    if !validation_result.is_valid {
+        std::process::exit(1);
     }
 
     // Step 6: Package Skill

@@ -50,11 +50,14 @@ pub fn is_url_allowed(
         Err(_) => return false,
     };
 
-    // Scheme & host must match
+    // Scheme, host, and effective port must match.
     if start.scheme() != candidate.scheme() {
         return false;
     }
     if start.host_str() != candidate.host_str() {
+        return false;
+    }
+    if start.port_or_known_default() != candidate.port_or_known_default() {
         return false;
     }
 
@@ -151,6 +154,24 @@ mod tests {
         assert!(is_url_allowed(
             "https://example.com/docs",
             "https://example.com/docs/api/v1",
+            None
+        ));
+    }
+
+    #[test]
+    fn test_explicit_default_port_is_same_origin() {
+        assert!(is_url_allowed(
+            "https://example.com/docs",
+            "https://example.com:443/docs/page",
+            None
+        ));
+    }
+
+    #[test]
+    fn test_non_default_port_is_different_origin() {
+        assert!(!is_url_allowed(
+            "https://example.com/docs",
+            "https://example.com:8443/docs/page",
             None
         ));
     }

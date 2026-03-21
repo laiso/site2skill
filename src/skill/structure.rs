@@ -118,6 +118,12 @@ Options:
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
+            // Skip symlinks to prevent reading files outside source_dir
+            if entry.path_is_symlink() {
+                warn!("Skipping symlink: {:?}", path);
+                continue;
+            }
+
             if path.is_file() && path.extension().map_or(false, |ext| ext == "md") {
                 let rel_path = path.strip_prefix(source_dir).unwrap_or(path);
 
