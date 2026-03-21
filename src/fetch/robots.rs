@@ -24,9 +24,7 @@ impl RobotsTxtCache {
 
     /// Check if a URL is allowed by robots.txt
     pub async fn is_allowed(&self, url: &Url) -> Result<bool, CrawlerError> {
-        let scheme = url.scheme();
-        let host = url.host_str().unwrap_or("");
-        let robots_url = format!("{}://{}/robots.txt", scheme, host);
+        let robots_url = robots_txt_url(url);
 
         // Check cache first
         {
@@ -49,13 +47,13 @@ impl RobotsTxtCache {
         // Cache the result
         {
             let mut cache_guard = self.cache.write().await;
-            cache_guard.insert(robots_url, robots);
+            cache_guard.insert(robots_url.clone(), robots);
         }
 
         // Check if allowed
         {
             let cache_guard = self.cache.read().await;
-            if let Some(robots) = cache_guard.get(&format!("{}://{}/robots.txt", scheme, host)) {
+            if let Some(robots) = cache_guard.get(&robots_url) {
                 return Ok(robots.is_allowed(url.path(), "site2skill"));
             }
         }
@@ -74,6 +72,16 @@ impl RobotsTxtCache {
                 Ok(None)
             }
         }
+    }
+}
+
+fn robots_txt_url(url: &Url) -> String {
+    let scheme = url.scheme();
+    let host = url.host_str().unwrap_or("");
+
+    match url.port_or_known_default() {
+        Some(port) => format!("{}://{}:{}/robots.txt", scheme, host, port),
+        None => format!("{}://{}/robots.txt", scheme, host),
     }
 }
 
@@ -130,30 +138,47 @@ impl RobotsTxt {
         }
     }
 
-    /// Check if a path is allowed
+    /// Check if a path is allowed using longest-match semantics
     pub fn is_allowed(&self, path: &str, _user_agent: &str) -> bool {
-        // Check allow rules first (more specific)
+        let mut longest_match_len: usize = 0;
+        let mut longest_match_is_allow = true; // default: allowed
+
         for rule in &self.allow_rules {
-            if path.starts_with(rule) {
-                return true;
+            if path.starts_with(rule) && rule.len() > longest_match_len {
+                longest_match_len = rule.len();
+                longest_match_is_allow = true;
             }
         }
 
-        // Check disallow rules
         for rule in &self.disallow_rules {
-            if path.starts_with(rule) {
-                return false;
+            if path.starts_with(rule) && rule.len() > longest_match_len {
+                longest_match_len = rule.len();
+                longest_match_is_allow = false;
             }
         }
 
-        // Default: allowed
-        true
+        longest_match_is_allow
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_robots_url_keeps_non_default_port() {
+        let url = Url::parse("http://localhost:3000/docs").unwrap();
+        assert_eq!(robots_txt_url(&url), "http://localhost:3000/robots.txt");
+    }
+
+    #[test]
+    fn test_robots_url_normalizes_default_https_port() {
+        let implicit = Url::parse("https://example.com/docs").unwrap();
+        let explicit = Url::parse("https://example.com:443/docs").unwrap();
+
+        assert_eq!(robots_txt_url(&implicit), "https://example.com:443/robots.txt");
+        assert_eq!(robots_txt_url(&explicit), "https://example.com:443/robots.txt");
+    }
 
     #[test]
     fn test_robots_parse() {

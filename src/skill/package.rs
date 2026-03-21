@@ -55,12 +55,26 @@ pub fn package_skill(skill_dir: &Path, output_dir: &Path) -> Result<PathBuf, Pac
             continue;
         }
 
+        // Skip symlinks to prevent zip-slip via symlink traversal
+        if entry.path_is_symlink() {
+            tracing::warn!("Skipping symlink in ZIP: {:?}", path);
+            continue;
+        }
+
         // Convert to Unix-style path for ZIP
         let zip_path = rel_path
             .components()
             .map(|c| c.as_os_str().to_string_lossy())
             .collect::<Vec<_>>()
             .join("/");
+
+        // Reject paths with traversal components or absolute paths
+        if zip_path.contains("..") || zip_path.starts_with('/') {
+            return Err(PackageError::IoError(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Invalid path in archive: {}", zip_path),
+            )));
+        }
 
         // Add file to ZIP
         zip.start_file(&zip_path, options)?;
