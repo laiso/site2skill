@@ -84,9 +84,32 @@ Measured the conversion pipeline (Convert, Normalize, Generate, Validate) agains
 
 Environment: macOS ARM64 (Apple Silicon), static HTML served from localhost, generated with `scripts/generate_bench_site.py --pages 100`
 
+## Release
+
+Version `0.2.0b1` (pre-release). `pip install site2skill` still installs the stable Python version (0.1.1). Use `pip install --pre site2skill` or `pip install site2skill==0.2.0b1` for the Rust beta.
+
+### How to publish
+
+1. Merge this PR
+2. Tag and push: `git tag v0.2.0b1 && git push origin v0.2.0b1`
+3. GHA builds wheels for 4 platforms (linux x86_64/aarch64, macOS arm64/x86_64) and publishes to PyPI
+
+### PyPI auth setup required
+
+The release workflow uses [PyPI Trusted Publishers](https://docs.pypi.org/trusted-publishers/). Before the first release:
+
+1. Go to https://pypi.org/manage/project/site2skill/settings/publishing/
+2. Add a new publisher:
+   - Owner: `laiso`
+   - Repository: `site2skill`
+   - Workflow: `release.yml`
+   - Environment: `pypi`
+3. On GitHub, go to Settings > Environments > create `pypi` environment (no secrets needed with Trusted Publishers)
+
 ## TODO
 
-- [ ] Linux build verification
-- [ ] GitHub Actions CI
-- [ ] Multi-platform wheels (cross-compilation)
-- [ ] Publish to PyPI
+- [x] Linux build verification (GHA ubuntu-latest)
+- [x] GitHub Actions CI (`cargo test`)
+- [x] Multi-platform wheels (release workflow)
+- [ ] PyPI Trusted Publisher setup (see above)
+- [ ] Tag `v0.2.0b1` and publish
