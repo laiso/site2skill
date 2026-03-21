@@ -1,0 +1,62 @@
+[package]
+name = "site2skill"
+version = "0.2.0"
+edition = "2021"
+authors = ["laiso <laiso@users.noreply.github.com>"]
+description = "Turn any documentation website into a Claude Agent Skill"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/laiso/site2skill"
+keywords = ["claude", "agent", "skill", "documentation", "cli"]
+
+[dependencies]
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.11", features = ["rustls-tls"], default-features = false }
+
+# HTML parsing
+scraper = "0.18"
+htmd = "0.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+
+# URL handling
+url = "2.5"
+
+# ZIP creation
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+
+# Async utilities
+futures = "0.3"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Progress bars
+indicatif = "0.17"
+
+# Error handling
+thiserror = "1"
+
+# Regex
+regex = "1"
+lazy_static = "1"
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Directory walking
+walkdir = "2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1

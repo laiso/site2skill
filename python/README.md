@@ -8,6 +8,13 @@ Agent Skills are dynamically loaded knowledge modules that Claude uses on demand
 
 ## Installation
 
+**Requirements:**
+*   **Python 3.10+**
+*   **wget**: Must be installed and available in your PATH.
+    *   macOS: `brew install wget`
+    *   Linux: `apt install wget`
+    *   Windows: Use WSL, or install via `choco install wget` / `scoop install wget`
+
 ### Install from PyPI
 
 ```bash
@@ -25,14 +32,11 @@ uv tool install site2skill
 uvx site2skill <URL> <SKILL_NAME>
 ```
 
-### Build from Source
+### Install from GitHub (Latest)
 
 ```bash
-# Requires Rust toolchain
-git clone https://github.com/laiso/site2skill.git
-cd site2skill
-cargo build --release
-./target/release/site2skill --help
+pip install git+https://github.com/laiso/site2skill.git
+uvx --from git+https://github.com/laiso/site2skill site2skill <URL> <SKILL_NAME>
 ```
 
 ## Usage
@@ -67,9 +71,9 @@ Options:
 
 ## How it works
 
-1.  **Fetch**: Crawls the documentation site with a built-in async HTTP crawler (robots.txt compliant, concurrent).
-2.  **Convert**: Converts HTML pages to Markdown using scraper and htmd.
-3.  **Normalize**: Resolves relative links to absolute URLs.
+1.  **Fetch**: Downloads the documentation site recursively using `wget`.
+2.  **Convert**: Converts HTML pages to Markdown using `beautifulsoup4` and `markdownify`.
+3.  **Normalize**: Cleans up links and formatting.
 4.  **Validate**: Checks the skill structure and size limits.
 5.  **Package**: Generates `SKILL.md` and zips everything into a `.skill` file.
 
@@ -85,14 +89,14 @@ The tool generates a skill directory in `.claude/skills/<skill_name>/` containin
     └── search_docs.py # Search tool for documentation
 ```
 
-Additionally, a `<skill_name>.skill` file (ZIP archive) is created in the current directory when targeting `claude-desktop`.
+Additionally, a `<skill_name>.skill` file (ZIP archive) is created in the current directory.
 
 Legacy note: older skills may use `docs/` instead of `references/`. The search tool and validator
 now support both, preferring `references/` when present.
 
 ### Search Tool
 
-Each generated skill includes a Python search script (requires Python 3 at runtime):
+Each generated skill includes a search script:
 
 ```bash
 python scripts/search_docs.py "<query>"

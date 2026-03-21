@@ -30,29 +30,29 @@ class Colors:
 def extract_frontmatter(content: str) -> Tuple[Dict, str]:
     """
     Parse YAML frontmatter from Markdown content.
-    
+
     Args:
         content: Raw file content
-        
+
     Returns:
         Tuple of (frontmatter_dict, body_content)
     """
     frontmatter = {}
     body = content
-    
+
     # Regex for YAML frontmatter
     match = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)', content, re.DOTALL)
-    
+
     if match:
         frontmatter_str = match.group(1)
         body = match.group(2)
-        
+
         # Simple YAML parsing (key: value)
         for line in frontmatter_str.split('\n'):
             if ':' in line:
                 key, value = line.split(':', 1)
                 frontmatter[key.strip()] = value.strip()
-                
+
     return frontmatter, body
 
 def get_context(text: str, query: str, context_lines: int = 2) -> List[str]:
@@ -74,10 +74,10 @@ def get_context(text: str, query: str, context_lines: int = 2) -> List[str]:
     # Find line indices with matches (any keyword)
     match_indices = [i for i, line in enumerate(lines)
                      if any(kw in line.lower() for kw in keywords)]
-    
+
     if not match_indices:
         return []
-        
+
     # Group nearby matches to avoid overlapping contexts
     groups = []
     if match_indices:
@@ -90,18 +90,18 @@ def get_context(text: str, query: str, context_lines: int = 2) -> List[str]:
                 groups.append(current_group)
                 current_group = [match_indices[i]]
         groups.append(current_group)
-    
+
     # Extract context for each group
     for group in groups:
         start_idx = max(0, group[0] - context_lines)
         end_idx = min(len(lines), group[-1] + context_lines + 1)
-        
+
         snippet_lines = lines[start_idx:end_idx]
-        
+
         # Highlight matches (simple marking for now)
         # In a real terminal, we could use ANSI codes, but for text output we keep it clean
         # or we could add a marker like '> ' for matched lines
-        
+
         formatted_snippet = []
         for i, line in enumerate(snippet_lines):
             original_idx = start_idx + i
@@ -109,9 +109,9 @@ def get_context(text: str, query: str, context_lines: int = 2) -> List[str]:
             if any(idx == original_idx for idx in group):
                 prefix = "> " # Marker for matched line
             formatted_snippet.append(f"{prefix}{line}")
-            
+
         contexts.append("\n".join(formatted_snippet))
-        
+
     return contexts
 
 def search_docs(skill_dir: Path, query: str, max_results: int = 10) -> List[Dict]:
@@ -163,10 +163,10 @@ def search_docs(skill_dir: Path, query: str, max_results: int = 10) -> List[Dict
                 })
         except Exception as e:
             print(f"Error reading {file_path}: {e}", file=sys.stderr)
-                
+
     # Sort by number of matches (descending)
     results.sort(key=lambda x: x["matches"], reverse=True)
-    
+
     return results[:max_results]
 
 def format_results(results: List[Dict], query: str):
@@ -177,13 +177,13 @@ def format_results(results: List[Dict], query: str):
 
     print(f"\n{Colors.HEADER}Search Results for '{query}'{Colors.ENDC}")
     print(f"Found matches in {len(results)} files.\n")
-    
+
     for i, res in enumerate(results, 1):
         print(f"{Colors.BOLD}{i}. {res['file']}{Colors.ENDC}")
         print(f"   Matches: {res['matches']} | Source: {res['source_url']}")
         print(f"   Fetched: {res['fetched_at']}")
         print(f"{Colors.CYAN}{'-' * 40}{Colors.ENDC}")
-        
+
         for ctx in res['contexts'][:3]: # Show max 3 contexts per file
             print(ctx)
             print("   ...")
@@ -207,7 +207,7 @@ def main():
     skill_path = Path(args.skill_dir).resolve()
 
     results = search_docs(skill_path, args.query, args.max_results)
-    
+
     if args.json:
         format_json(results)
     else:

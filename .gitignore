@@ -31,3 +31,15 @@ venv/
 
 # Pytest
 .pytest_cache/
+
+# Rust
+target/
+
+# Benchmark artifacts
+bench-site-*/
+bench-results/
+
+# Misc
+wget-log
+*.skill
+python/site2skill/bin/
