@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-wheels:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            platform_tag: manylinux_2_17_x86_64
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            platform_tag: manylinux_2_17_aarch64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            platform_tag: macosx_11_0_arm64
+          - os: macos-13
+            target: x86_64-apple-darwin
+            platform_tag: macosx_10_9_x86_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build wheel
+        run: |
+          mkdir -p python/site2skill/bin
+          cp target/${{ matrix.target }}/release/site2skill python/site2skill/bin/
+          chmod +x python/site2skill/bin/site2skill
+          cd python
+          python -m build --wheel
+          cd dist
+          for wheel in site2skill-*-py3-none-any.whl; do
+            if [ -f "$wheel" ]; then
+              VERSION=$(echo "$wheel" | sed 's/site2skill-\(.*\)-py3-none-any.whl/\1/')
+              NEW_NAME="site2skill-${VERSION}-py3-none-${{ matrix.platform_tag }}.whl"
+              mv "$wheel" "$NEW_NAME"
+              echo "Built: $NEW_NAME"
+            fi
+          done
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.platform_tag }}
+          path: python/dist/*.whl
+
+  publish:
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    environment: pypi
+
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List wheels
+        run: ls -lh dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

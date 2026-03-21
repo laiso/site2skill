@@ -1,6 +1,6 @@
 [package]
 name = "site2skill"
-version = "0.2.0"
+version = "0.2.0-beta.1"
 edition = "2021"
 authors = ["laiso <laiso@users.noreply.github.com>"]
 description = "Turn any documentation website into a Claude Agent Skill"
