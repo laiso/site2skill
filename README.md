@@ -90,6 +90,7 @@ Options:
   --output, -o       Base output directory for skill structure (overrides target default)
   --skill-output     Output directory for .skill file (default: .)
   --temp-dir         Temporary directory for processing (default: build)
+  --max-concurrency  Maximum number of HTTP requests to run at once (default: 10)
   --skip-fetch       Skip the download step (use existing files in temp dir)
   --clean            Clean up temporary directory after completion
   --version          Print version (Rust beta only)
