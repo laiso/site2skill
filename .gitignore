@@ -27,7 +27,7 @@ wheels/
 .venv/
 venv/
 .doc/
-.codex/skills/
+.agents/skills/
 
 # Pytest
 .pytest_cache/

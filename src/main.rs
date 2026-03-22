@@ -28,7 +28,7 @@ impl TargetAgent {
             TargetAgent::Claude | TargetAgent::ClaudeDesktop => ".claude/skills",
             TargetAgent::Cursor => ".cursor/skills",
             TargetAgent::Gemini => ".gemini/skills",
-            TargetAgent::Codex => ".codex/skills",
+            TargetAgent::Codex => ".agents/skills",
         }
     }
 }
