@@ -10,16 +10,14 @@ from pathlib import Path
 def get_binary_path() -> Path:
     """Return the path to the bundled binary."""
     package_dir = Path(__file__).parent
-    binary = package_dir / "bin" / "site2skill"
+    binary_name = "site2skill.exe" if sys.platform == "win32" else "site2skill"
+    binary = package_dir / "bin" / binary_name
 
     # Ensure binary is executable on Unix
-    if sys.platform != "win32":
-        if binary.exists():
-            current_mode = os.stat(binary).st_mode
-            if not (current_mode & stat.S_IXUSR):
-                os.chmod(
-                    binary, current_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-                )
+    if sys.platform != "win32" and binary.exists():
+        current_mode = os.stat(binary).st_mode
+        if not (current_mode & stat.S_IXUSR):
+            os.chmod(binary, current_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
     return binary
 

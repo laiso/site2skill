@@ -26,6 +26,9 @@ jobs:
           - os: macos-latest
             target: x86_64-apple-darwin
             platform_tag: macosx_10_9_x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            platform_tag: win_amd64
 
     runs-on: ${{ matrix.os }}
 
@@ -53,10 +56,15 @@ jobs:
         run: pip install build
 
       - name: Build wheel
+        shell: bash
         run: |
           mkdir -p python/site2skill/bin
-          cp target/${{ matrix.target }}/release/site2skill python/site2skill/bin/
-          chmod +x python/site2skill/bin/site2skill
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            cp target/${{ matrix.target }}/release/site2skill.exe python/site2skill/bin/
+          else
+            cp target/${{ matrix.target }}/release/site2skill python/site2skill/bin/
+            chmod +x python/site2skill/bin/site2skill
+          fi
           cd python
           python -m build --wheel
           cd dist
