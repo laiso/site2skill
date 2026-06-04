@@ -107,7 +107,7 @@ def build_rust_binary(target_dir: Path):
 def main():
     """Main build function."""
     # Get the python package directory
-    package_dir = Path(__file__).parent / "python" / "site2skill"
+    package_dir = Path(__file__).parent.parent / "python" / "site2skill"
 
     # Build Rust binary
     build_rust_binary(package_dir)
