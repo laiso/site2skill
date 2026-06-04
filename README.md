@@ -27,14 +27,14 @@ pip install --pre site2skill
 Or pin the version:
 
 ```bash
-pip install 'site2skill==0.2.0b1'
+pip install 'site2skill==0.2.0b2'
 ```
 
 Verify you're running the Rust version:
 
 ```bash
 site2skill --version
-# site2skill 0.2.0-beta.1
+# site2skill 0.2.0-beta.2
 ```
 
 The stable version has no `--version` flag, so if you see a version string, you're on the Rust beta.

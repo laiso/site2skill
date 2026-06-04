@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "site2skill"
-version = "0.2.0b1"
+version = "0.2.0b2"
 description = "Turn any documentation website into a Claude Agent Skill"
 readme = "README.md"
 license = { text = "MIT" }
